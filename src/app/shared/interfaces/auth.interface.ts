@@ -1,18 +1,15 @@
-export interface CurrentUser {
-  id: string;
-  email: string;
-  fullName: string;
-  avatarUrl?: string;
-}
-
 export interface AuthResponse {
-  authenticated: boolean;
-  user: CurrentUser | null;
-  permissions: string[];
-  activeModules: string[];
-  mustChangePassword: boolean;
-  mfaRequired: boolean;
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  platform_role: string;
+  
+  // Optional for other flows
+  authenticated?: boolean;
+  user?: any;
+  mfaRequired?: boolean;
   mfaSessionToken?: string;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginRequest {
@@ -31,30 +28,8 @@ export interface ForcePasswordChangeRequest {
   newPassword: string;
 }
 
-// Role Related Interfaces
-export interface RoleSummary {
+export interface CurrentUser {
   id: string;
-  name: string;
-  description: string;
-  isSystem: boolean;
-  permissionCount: number;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export interface RolePermission {
-  id: string;
-  code: string;
-  description: string;
-  module: string;
-}
-
-export interface RoleDetail {
-  id: string;
-  name: string;
-  description: string;
-  isSystem: boolean;
-  permissions: RolePermission[];
-  createdAt: string;
-  updatedAt?: string;
+  email: string;
+  fullName: string;
 }

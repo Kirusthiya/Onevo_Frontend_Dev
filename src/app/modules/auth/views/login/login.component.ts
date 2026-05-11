@@ -47,8 +47,8 @@ export class LoginComponent {
           } else if (res.mustChangePassword) {
             // Handle Password Change navigation
             console.log('Password Change Required');
-          } else if (res.authenticated) {
-            // Successful login
+          } else if (res.access_token || res.authenticated) {
+            // Successful login (check for token or authenticated flag)
             this.router.navigate(['/dashboard']);
           }
         },

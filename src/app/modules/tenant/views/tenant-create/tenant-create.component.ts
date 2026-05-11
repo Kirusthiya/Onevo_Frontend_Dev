@@ -1,6 +1,6 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,96 +11,83 @@ import { Router } from '@angular/router';
   styleUrl: './tenant-create.component.scss'
 })
 export class TenantCreateComponent {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+
   currentStep = signal(1);
-  totalSteps = 4;
-  
   tenantForm: FormGroup;
-  
-  countries = [
-    { name: 'Sri Lanka', code: 'LK', currency: 'LKR', timezone: 'Asia/Colombo' },
-    { name: 'India', code: 'IN', currency: 'INR', timezone: 'Asia/Kolkata' },
-    { name: 'United Kingdom', code: 'GB', currency: 'GBP', timezone: 'Europe/London' },
-    { name: 'United States', code: 'US', currency: 'USD', timezone: 'America/New_York' }
-  ];
 
-  availableModules = [
-    { id: 'core-hr', name: 'Core HR', description: 'Essential HR management features (Mandatory)', mandatory: true, selected: true, price: 0 },
-    { id: 'proj-mgmt', name: 'Project Management', description: 'Task tracking and collaboration', selected: false, price: 15 },
-    { id: 'chat', name: 'Internal Chat', description: 'Real-time team communication', selected: false, price: 10 },
-    { id: 'monitoring', name: 'Activity Monitoring', description: 'Employee productivity tracking', selected: false, price: 25 }
-  ];
-
-  plans = [
-    { id: 'monthly', name: 'Monthly Package', duration: 'Month', priceMultiplier: 1 },
-    { id: 'yearly', name: 'Yearly Package', duration: 'Year', priceMultiplier: 10 },
-    { id: 'demo', name: 'Free Trial (Demo)', duration: '14 Days', priceMultiplier: 0 }
-  ];
-
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor() {
     this.tenantForm = this.fb.group({
-      basic: this.fb.group({
-        companyName: ['', Validators.required],
-        ownerEmail: ['', [Validators.required, Validators.email]],
-        domain: ['', Validators.required],
-        address: ['', Validators.required],
-        legalEntity: ['', Validators.required],
-        country: ['', Validators.required],
-        currency: [{value: '', disabled: true}],
-        timezone: [{value: '', disabled: true}]
-      }),
-      modules: this.fb.group({
-        selectedIds: [['core-hr']]
-      }),
-      subscription: this.fb.group({
-        planId: ['monthly', Validators.required],
-        billingCycle: ['monthly']
-      }),
-      invites: this.fb.array([
-        this.fb.control('', [Validators.email])
-      ])
+      // Step 1
+      name: ['', Validators.required],
+      domain: ['', [Validators.required, Validators.pattern('^[a-z0-9-]+$')]],
+      industry: ['', Validators.required],
+      
+      // Step 2
+      country: ['sri-lanka', Validators.required],
+      currency: ['LKR', Validators.required],
+      timezone: ['Asia/Colombo', Validators.required],
+      
+      // Step 3
+      package: ['core-hr', Validators.required],
+      
+      // Step 4
+      adminEmail: ['', [Validators.required, Validators.email]],
+      adminName: ['', Validators.required]
     });
 
-    // Auto-set currency and timezone on country change
-    this.tenantForm.get('basic.country')?.valueChanges.subscribe(countryCode => {
-      const country = this.countries.find(c => c.code === countryCode);
-      if (country) {
-        this.tenantForm.get('basic.currency')?.setValue(country.currency);
-        this.tenantForm.get('basic.timezone')?.setValue(country.timezone);
-      }
+    // Auto-update currency when country changes
+    this.tenantForm.get('country')?.valueChanges.subscribe(country => {
+      const currencyMap: Record<string, string> = {
+        'sri-lanka': 'LKR',
+        'india': 'INR',
+        'singapore': 'SGD'
+      };
+      const timezoneMap: Record<string, string> = {
+        'sri-lanka': 'Asia/Colombo',
+        'india': 'Asia/Kolkata',
+        'singapore': 'Asia/Singapore'
+      };
+      
+      this.tenantForm.patchValue({
+        currency: currencyMap[country] || 'USD',
+        timezone: timezoneMap[country] || 'UTC'
+      });
     });
-  }
-
-  get inviteEmails() {
-    return this.tenantForm.get('invites') as FormArray;
-  }
-
-  addInvite() {
-    this.inviteEmails.push(this.fb.control('', [Validators.email]));
   }
 
   nextStep() {
-    if (this.currentStep() < this.totalSteps) {
+    if (this.canMoveForward()) {
       this.currentStep.update(s => s + 1);
     }
   }
 
   prevStep() {
-    if (this.currentStep() > 1) {
-      this.currentStep.update(s => s - 1);
-    }
+    this.currentStep.update(s => s - 1);
   }
 
-  toggleModule(moduleId: string) {
-    const mod = this.availableModules.find(m => m.id === moduleId);
-    if (mod && !mod.mandatory) {
-      mod.selected = !mod.selected;
-      const selected = this.availableModules.filter(m => m.selected).map(m => m.id);
-      this.tenantForm.get('modules.selectedIds')?.setValue(selected);
+  canMoveForward(): boolean {
+    const step = this.currentStep();
+    if (step === 1) {
+      return !!(this.tenantForm.get('name')?.valid && this.tenantForm.get('domain')?.valid);
     }
+    if (step === 2) {
+      return !!(this.tenantForm.get('country')?.valid && this.tenantForm.get('timezone')?.valid);
+    }
+    if (step === 3) {
+      return !!this.tenantForm.get('package')?.valid;
+    }
+    return true;
   }
 
   finish() {
-    console.log('Submitting Tenant Data:', this.tenantForm.getRawValue());
-    this.router.navigate(['/dashboard/tenants']);
+    if (this.tenantForm.valid) {
+      console.log('Creating Tenant:', this.tenantForm.value);
+      // Simulate API Call
+      setTimeout(() => {
+        this.router.navigate(['/dashboard/tenants']);
+      }, 1500);
+    }
   }
 }

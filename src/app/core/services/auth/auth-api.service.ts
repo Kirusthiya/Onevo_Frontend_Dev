@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { AuthResponse, LoginRequest, MfaVerifyRequest, ForcePasswordChangeRequest, CurrentUser } from '../../../shared/interfaces/auth.interface';
+import { AuthResponse, LoginRequest, CurrentUser, MfaVerifyRequest, ForcePasswordChangeRequest } from '../../../shared/interfaces/auth.interface';
 import { Observable, tap } from 'rxjs';
 
 @Injectable({
@@ -22,9 +22,9 @@ export class AuthApiService {
     return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials, { withCredentials: true })
       .pipe(
         tap(res => {
-          if (res.authenticated && res.user) {
-            this.currentUser.set(res.user);
+          if (res.access_token) {
             this.isAuthenticated.set(true);
+            // Optionally set current user if data is available
           }
         })
       );

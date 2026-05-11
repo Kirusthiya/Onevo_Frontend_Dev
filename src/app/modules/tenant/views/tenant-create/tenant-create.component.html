@@ -1,164 +1,196 @@
 <div class="wizard-container">
-  <!-- Progress Header -->
-  <div class="wizard-header">
-    <div class="step-indicator">
-      <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
-        <div class="circle">1</div>
-        <span>Basic Info</span>
-      </div>
-      <div class="line" [class.active]="currentStep() > 1"></div>
-      <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
-        <div class="circle">2</div>
-        <span>Modules</span>
-      </div>
-      <div class="line" [class.active]="currentStep() > 2"></div>
-      <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
-        <div class="circle">3</div>
-        <span>Subscription</span>
-      </div>
-      <div class="line" [class.active]="currentStep() > 3"></div>
-      <div class="step" [class.active]="currentStep() >= 4">
-        <div class="circle">4</div>
-        <span>Invites</span>
-      </div>
-    </div>
-  </div>
-
-  <form [formGroup]="tenantForm" class="wizard-form">
-    <!-- Step 1: Basic Info -->
-    <div class="step-content" *ngIf="currentStep() === 1" formGroupName="basic">
-      <h2>Tenant Basic Information</h2>
-      <p>Enter the primary details of the organization.</p>
-      
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Company Name</label>
-          <input type="text" formControlName="companyName" placeholder="e.g. Acme Corp">
-        </div>
-        <div class="form-group">
-          <label>Owner Email</label>
-          <input type="email" formControlName="ownerEmail" placeholder="admin@acme.com">
-        </div>
-        <div class="form-group">
-          <label>Preferred Domain</label>
-          <div class="domain-input">
-            <input type="text" formControlName="domain" placeholder="acme">
-            <span class="suffix">.onevo.com</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Legal Entity Type</label>
-          <select formControlName="legalEntity">
-            <option value="">Select Type</option>
-            <option value="pvt">Private Limited</option>
-            <option value="pub">Public Company</option>
-            <option value="ngo">NGO / Non-Profit</option>
-          </select>
-        </div>
-        <div class="form-group full-width">
-          <label>Headquarters Address</label>
-          <textarea formControlName="address" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Country</label>
-          <select formControlName="country">
-            <option value="">Select Country</option>
-            <option *ngFor="let c of countries" [value]="c.code">{{ c.name }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Currency</label>
-          <input type="text" formControlName="currency" readonly>
-        </div>
-        <div class="form-group">
-          <label>Timezone</label>
-          <input type="text" formControlName="timezone" readonly>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 2: Modules -->
-    <div class="step-content" *ngIf="currentStep() === 2">
-      <h2>Select Modules & Packages</h2>
-      <p>Choose the features available for this tenant.</p>
-      
-      <div class="modules-grid">
-        <div class="module-card" *ngFor="let mod of availableModules" 
-             [class.selected]="mod.selected" 
-             [class.mandatory]="mod.mandatory"
-             (click)="toggleModule(mod.id)">
-          <div class="check-icon" *ngIf="mod.selected">
-            <i class="icon-check"></i>
-          </div>
-          <div class="module-icon">
-            <i [class]="'icon-' + mod.id"></i>
-          </div>
-          <h3>{{ mod.name }}</h3>
-          <p>{{ mod.description }}</p>
-          <div class="price" *ngIf="!mod.mandatory">+ ${{ mod.price }}/mo</div>
-          <div class="price" *ngIf="mod.mandatory">Included</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Subscription -->
-    <div class="step-content" *ngIf="currentStep() === 3" formGroupName="subscription">
-      <h2>Subscription Plan</h2>
-      <p>Configure billing frequency and tier access.</p>
-      
-      <div class="plans-list">
-        <div class="plan-item" *ngFor="let plan of plans" 
-             [class.active]="tenantForm.get('subscription.planId')?.value === plan.id"
-             (click)="tenantForm.get('subscription.planId')?.setValue(plan.id)">
-          <div class="plan-radio"></div>
-          <div class="plan-info">
-            <span class="name">{{ plan.name }}</span>
-            <span class="duration">Billing Cycle: {{ plan.duration }}</span>
-          </div>
-          <div class="plan-badge" *ngIf="plan.id === 'demo'">Recommended for Evaluation</div>
-        </div>
+  <div class="wizard-card">
+    
+    <!-- Sidebar Stepper -->
+    <aside class="wizard-sidebar">
+      <div class="sidebar-header">
+        <h2>Create Tenant</h2>
+        <p>Set up a new organization unit</p>
       </div>
 
-      <div class="config-summary mt-4">
-        <h3>Initial Configuration Template</h3>
-        <div class="template-select">
-          <div class="template-opt active">
-            <i class="icon-file"></i>
-            <div>
-              <p class="t-name">Standard Corporate Template</p>
-              <p class="t-desc">Default leave policies, 9-5 working hours, transparency enabled.</p>
+      <div class="stepper-list">
+        <div class="step-item" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1">
+          <div class="step-icon">
+            <i class="bi bi-building" *ngIf="currentStep() <= 1"></i>
+            <i class="bi bi-check-lg" *ngIf="currentStep() > 1"></i>
+          </div>
+          <div class="step-label">
+            <h4>Organization</h4>
+            <p>Company details</p>
+          </div>
+        </div>
+
+        <div class="step-item" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
+          <div class="step-icon">
+            <i class="bi bi-gear" *ngIf="currentStep() <= 2"></i>
+            <i class="bi bi-check-lg" *ngIf="currentStep() > 2"></i>
+          </div>
+          <div class="step-label">
+            <h4>Configuration</h4>
+            <p>Localization & legal</p>
+          </div>
+        </div>
+
+        <div class="step-item" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3">
+          <div class="step-icon">
+            <i class="bi bi-box" *ngIf="currentStep() <= 3"></i>
+            <i class="bi bi-check-lg" *ngIf="currentStep() > 3"></i>
+          </div>
+          <div class="step-label">
+            <h4>Modules</h4>
+            <p>Select packages</p>
+          </div>
+        </div>
+
+        <div class="step-item" [class.active]="currentStep() === 4" [class.completed]="currentStep() > 4">
+          <div class="step-icon">
+            <i class="bi bi-person-plus" *ngIf="currentStep() <= 4"></i>
+            <i class="bi bi-check-lg" *ngIf="currentStep() > 4"></i>
+          </div>
+          <div class="step-label">
+            <h4>Admin Setup</h4>
+            <p>Primary contact</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="wizard-main">
+      <form [formGroup]="tenantForm">
+        
+        <!-- Step 1: Organization -->
+        <div class="step-content" *ngIf="currentStep() === 1">
+          <div class="content-header">
+            <h3>Company Details</h3>
+            <p>Tell us about the organization you are onboarding.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Company Name</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="name" placeholder="e.g. Acme Corp">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Unique Domain</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="domain" placeholder="acme">
+              <span class="domain-suffix">.onevo.io</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Industry</label>
+            <div class="input-wrapper">
+              <select formControlName="industry">
+                <option value="">Select industry</option>
+                <option value="technology">Technology</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Finance</option>
+                <option value="retail">Retail</option>
+              </select>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Step 4: Invites -->
-    <div class="step-content" *ngIf="currentStep() === 4">
-      <h2>Invite Team Members</h2>
-      <p>Add email addresses to send tenant activation invites.</p>
-      
-      <div class="invites-container" formArrayName="invites">
-        <div class="invite-row" *ngFor="let email of inviteEmails.controls; let i=index">
-          <input [formControlName]="i" type="email" placeholder="colleague@company.com">
+        <!-- Step 2: Configuration -->
+        <div class="step-content" *ngIf="currentStep() === 2">
+          <div class="content-header">
+            <h3>Localization</h3>
+            <p>Configure region, currency and timezone.</p>
+          </div>
+
+          <div class="grid-cols-2">
+            <div class="form-group">
+              <label>Country</label>
+              <div class="input-wrapper">
+                <select formControlName="country">
+                  <option value="sri-lanka">Sri Lanka</option>
+                  <option value="india">India</option>
+                  <option value="singapore">Singapore</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <div class="input-wrapper">
+                <input type="text" formControlName="currency" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Timezone</label>
+            <div class="input-wrapper">
+              <select formControlName="timezone">
+                <option value="Asia/Colombo">(GMT+05:30) Colombo</option>
+                <option value="Asia/Kolkata">(GMT+05:30) India</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <button type="button" class="add-more" (click)='addInvite()'>
-          <i class="icon-plus"></i> Add Another Email
+
+        <!-- Step 3: Modules -->
+        <div class="step-content" *ngIf="currentStep() === 3">
+          <div class="content-header">
+            <h3>Module Selection</h3>
+            <p>Choose the features for this tenant.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Subscription Package</label>
+            <div class="input-wrapper">
+              <select formControlName="package">
+                <option value="core-hr">Core HR (Basic)</option>
+                <option value="hr-payroll">HR + Payroll (Standard)</option>
+                <option value="enterprise">Enterprise Suite (Premium)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Admin -->
+        <div class="step-content" *ngIf="currentStep() === 4">
+          <div class="content-header">
+            <h3>Primary Admin</h3>
+            <p>Create the first admin account for this tenant.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Email</label>
+            <div class="input-wrapper">
+              <input type="email" formControlName="adminEmail" placeholder="admin@tenant.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Full Name</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="adminName" placeholder="John Doe">
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Wizard Actions -->
+      <div class="wizard-actions">
+        <button class="btn btn-ghost" (click)="prevStep()" *ngIf="currentStep() > 1">
+          <i class="bi bi-arrow-left"></i> Previous
+        </button>
+        <div *ngIf="currentStep() === 1"></div> <!-- Spacer -->
+
+        <button class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep() < 4" [disabled]="!canMoveForward()">
+          Next Step <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <button class="btn btn-primary" (click)="finish()" *ngIf="currentStep() === 4" [disabled]="tenantForm.invalid">
+          Create Organization <i class="bi bi-rocket-takeoff"></i>
         </button>
       </div>
+    </main>
 
-      <div class="notice-box">
-        <i class="icon-info"></i>
-        <p>Invited users will receive an email to set up their password and access the dashboard via Google SSO or Credentials.</p>
-      </div>
-    </div>
-
-    <!-- Navigation Buttons -->
-    <div class="wizard-footer">
-      <button type="button" class="btn-secondary" (click)="prevStep()" *ngIf="currentStep() > 1">Back</button>
-      <div class="spacer"></div>
-      <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep() < totalSteps">Next Step</button>
-      <button type="button" class="btn-finish" (click)="finish()" *ngIf="currentStep() === totalSteps">Create Tenant & Send Invites</button>
-    </div>
-  </form>
+  </div>
 </div>
