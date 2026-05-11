@@ -1,6 +1,6 @@
-import { Component, signal, inject, effect } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,78 +16,119 @@ export class TenantCreateComponent {
 
   currentStep = signal(1);
   tenantForm: FormGroup;
+  
+  // Dynamic steps based on configuration selection
+  showEmployeeStep = signal(false);
+  showRoleStep = signal(false);
 
   constructor() {
     this.tenantForm = this.fb.group({
-      // Step 1
+      // Step 1: Organization
       name: ['', Validators.required],
       domain: ['', [Validators.required, Validators.pattern('^[a-z0-9-]+$')]],
-      industry: ['', Validators.required],
+      address: ['', Validators.required],
+      legalEntity: ['', Validators.required],
       
-      // Step 2
+      // Step 2: Localization
       country: ['sri-lanka', Validators.required],
       currency: ['LKR', Validators.required],
       timezone: ['Asia/Colombo', Validators.required],
+
+      // Step 3: Config Selections (Dynamic Flags)
+      enableEmployeeOnboarding: [false],
+      enableRoleConfig: [false],
       
-      // Step 3
-      package: ['core-hr', Validators.required],
-      
-      // Step 4
+      // Step 4: Modules & Subscription
+      selectedModules: this.fb.group({
+        coreHr: [true], // Always true/must
+        projectManagement: [false],
+        chat: [false],
+        monitoring: [false]
+      }),
+      subscriptionPlan: ['monthly', Validators.required], // monthly, yearly, trial
+
+      // Step 5: Initial Configuration (Templates)
+      monitoringMode: ['transparent'], // transparent, stealth
+      leavePolicy: ['standard'],
+      workingHours: ['9-5'],
+
+      // Step 6: Admin/Owner
       adminEmail: ['', [Validators.required, Validators.email]],
       adminName: ['', Validators.required]
     });
 
-    // Auto-update currency when country changes
+    // Auto-update localization (still editable)
     this.tenantForm.get('country')?.valueChanges.subscribe(country => {
-      const currencyMap: Record<string, string> = {
-        'sri-lanka': 'LKR',
-        'india': 'INR',
-        'singapore': 'SGD'
-      };
-      const timezoneMap: Record<string, string> = {
-        'sri-lanka': 'Asia/Colombo',
-        'india': 'Asia/Kolkata',
-        'singapore': 'Asia/Singapore'
-      };
-      
-      this.tenantForm.patchValue({
-        currency: currencyMap[country] || 'USD',
-        timezone: timezoneMap[country] || 'UTC'
-      });
+      this.updateLocalization(country);
     });
+
+    // Watch config selections to adjust steps
+    this.tenantForm.get('enableEmployeeOnboarding')?.valueChanges.subscribe(val => this.showEmployeeStep.set(val));
+    this.tenantForm.get('enableRoleConfig')?.valueChanges.subscribe(val => this.showRoleStep.set(val));
   }
 
-  nextStep() {
-    if (this.canMoveForward()) {
-      this.currentStep.update(s => s + 1);
+  updateLocalization(country: string) {
+    const map: any = {
+      'sri-lanka': { cur: 'LKR', tz: 'Asia/Colombo' },
+      'india': { cur: 'INR', tz: 'Asia/Kolkata' },
+      'singapore': { cur: 'SGD', tz: 'Asia/Singapore' }
+    };
+    if (map[country]) {
+      this.tenantForm.patchValue({
+        currency: map[country].cur,
+        timezone: map[country].tz
+      }, { emitEvent: false });
     }
+  }
+
+  // Navigation Logic
+  nextStep() {
+    const next = this.calculateNextStep(this.currentStep());
+    this.currentStep.set(next);
   }
 
   prevStep() {
-    this.currentStep.update(s => s - 1);
+    const prev = this.calculatePrevStep(this.currentStep());
+    this.currentStep.set(prev);
+  }
+
+  private calculateNextStep(current: number): number {
+    if (current === 3) {
+      if (this.showEmployeeStep()) return 10; // Use special IDs for dynamic steps
+      if (this.showRoleStep()) return 11;
+      return 4;
+    }
+    if (current === 10) { // After Employee step
+      if (this.showRoleStep()) return 11;
+      return 4;
+    }
+    if (current === 11) return 4; // After Role step
+    return current + 1;
+  }
+
+  private calculatePrevStep(current: number): number {
+    if (current === 4) {
+      if (this.showRoleStep()) return 11;
+      if (this.showEmployeeStep()) return 10;
+      return 3;
+    }
+    if (current === 11) {
+      if (this.showEmployeeStep()) return 10;
+      return 3;
+    }
+    if (current === 10) return 3;
+    return current - 1;
   }
 
   canMoveForward(): boolean {
-    const step = this.currentStep();
-    if (step === 1) {
-      return !!(this.tenantForm.get('name')?.valid && this.tenantForm.get('domain')?.valid);
-    }
-    if (step === 2) {
-      return !!(this.tenantForm.get('country')?.valid && this.tenantForm.get('timezone')?.valid);
-    }
-    if (step === 3) {
-      return !!this.tenantForm.get('package')?.valid;
-    }
-    return true;
+    // Basic validation per step
+    return true; // Simplified for UI development
   }
 
   finish() {
     if (this.tenantForm.valid) {
-      console.log('Creating Tenant:', this.tenantForm.value);
-      // Simulate API Call
-      setTimeout(() => {
-        this.router.navigate(['/dashboard/tenants']);
-      }, 1500);
+      console.log('Final Data:', this.tenantForm.value);
+      this.router.navigate(['/dashboard/tenants']);
     }
   }
 }

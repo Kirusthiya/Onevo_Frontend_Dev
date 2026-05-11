@@ -1,175 +1,227 @@
 <div class="wizard-container">
   <div class="wizard-card">
     
-    <!-- Sidebar Stepper -->
+    <!-- Sidebar Stepper (Simplified View) -->
     <aside class="wizard-sidebar">
       <div class="sidebar-header">
-        <h2>Create Tenant</h2>
-        <p>Set up a new organization unit</p>
+        <h2>Tenant Setup</h2>
+        <p>Phase: {{ currentStep() <= 3 ? 'Discovery' : 'Configuration' }}</p>
       </div>
 
       <div class="stepper-list">
         <div class="step-item" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1">
-          <div class="step-icon">
-            <i class="bi bi-building" *ngIf="currentStep() <= 1"></i>
-            <i class="bi bi-check-lg" *ngIf="currentStep() > 1"></i>
-          </div>
-          <div class="step-label">
-            <h4>Organization</h4>
-            <p>Company details</p>
-          </div>
+          <div class="step-icon"><i class="bi bi-building"></i></div>
+          <div class="step-label"><h4>Company</h4><p>Base details</p></div>
         </div>
-
         <div class="step-item" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
-          <div class="step-icon">
-            <i class="bi bi-gear" *ngIf="currentStep() <= 2"></i>
-            <i class="bi bi-check-lg" *ngIf="currentStep() > 2"></i>
-          </div>
-          <div class="step-label">
-            <h4>Configuration</h4>
-            <p>Localization & legal</p>
-          </div>
+          <div class="step-icon"><i class="bi bi-geo-alt"></i></div>
+          <div class="step-label"><h4>Localization</h4><p>Region & Currency</p></div>
         </div>
-
         <div class="step-item" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3">
-          <div class="step-icon">
-            <i class="bi bi-box" *ngIf="currentStep() <= 3"></i>
-            <i class="bi bi-check-lg" *ngIf="currentStep() > 3"></i>
-          </div>
-          <div class="step-label">
-            <h4>Modules</h4>
-            <p>Select packages</p>
-          </div>
+          <div class="step-icon"><i class="bi bi-layers"></i></div>
+          <div class="step-label"><h4>Preferences</h4><p>Onboarding choices</p></div>
         </div>
-
-        <div class="step-item" [class.active]="currentStep() === 4" [class.completed]="currentStep() > 4">
-          <div class="step-icon">
-            <i class="bi bi-person-plus" *ngIf="currentStep() <= 4"></i>
-            <i class="bi bi-check-lg" *ngIf="currentStep() > 4"></i>
-          </div>
-          <div class="step-label">
-            <h4>Admin Setup</h4>
-            <p>Primary contact</p>
-          </div>
+        <div class="step-item" [class.active]="currentStep() >= 4" [class.completed]="currentStep() > 6">
+          <div class="step-icon"><i class="bi bi-rocket"></i></div>
+          <div class="step-label"><h4>Execution</h4><p>Modules & Finalize</p></div>
         </div>
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="wizard-main">
       <form [formGroup]="tenantForm">
         
         <!-- Step 1: Organization -->
         <div class="step-content" *ngIf="currentStep() === 1">
           <div class="content-header">
-            <h3>Company Details</h3>
-            <p>Tell us about the organization you are onboarding.</p>
+            <h3>Company Identity</h3>
+            <p>Define the organizational structure and legal entity.</p>
           </div>
-
-          <div class="form-group">
-            <label>Company Name</label>
-            <div class="input-wrapper">
-              <input type="text" formControlName="name" placeholder="e.g. Acme Corp">
+          <div class="grid-cols-2">
+            <div class="form-group">
+              <label>Company Name</label>
+              <input type="text" formControlName="name" placeholder="e.g. Onevo Global">
+            </div>
+            <div class="form-group">
+              <label>Legal Entity</label>
+              <input type="text" formControlName="legalEntity" placeholder="Pvt Ltd / Corp">
             </div>
           </div>
-
           <div class="form-group">
-            <label>Unique Domain</label>
+            <label>Sub-Domain</label>
             <div class="input-wrapper">
-              <input type="text" formControlName="domain" placeholder="acme">
+              <input type="text" formControlName="domain" placeholder="my-company">
               <span class="domain-suffix">.onevo.io</span>
             </div>
           </div>
-
           <div class="form-group">
-            <label>Industry</label>
-            <div class="input-wrapper">
-              <select formControlName="industry">
-                <option value="">Select industry</option>
-                <option value="technology">Technology</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="finance">Finance</option>
-                <option value="retail">Retail</option>
-              </select>
-            </div>
+            <label>Headquarters Address</label>
+            <textarea formControlName="address" rows="2" placeholder="Full physical address"></textarea>
           </div>
         </div>
 
-        <!-- Step 2: Configuration -->
+        <!-- Step 2: Localization (Editable) -->
         <div class="step-content" *ngIf="currentStep() === 2">
           <div class="content-header">
-            <h3>Localization</h3>
-            <p>Configure region, currency and timezone.</p>
+            <h3>Regional Settings</h3>
+            <p>Values are auto-suggested based on country but fully editable.</p>
           </div>
-
+          <div class="form-group">
+            <label>Country</label>
+            <select formControlName="country">
+              <option value="sri-lanka">Sri Lanka</option>
+              <option value="india">India</option>
+              <option value="singapore">Singapore</option>
+            </select>
+          </div>
           <div class="grid-cols-2">
             <div class="form-group">
-              <label>Country</label>
-              <div class="input-wrapper">
-                <select formControlName="country">
-                  <option value="sri-lanka">Sri Lanka</option>
-                  <option value="india">India</option>
-                  <option value="singapore">Singapore</option>
-                </select>
-              </div>
+              <label>Currency Code</label>
+              <input type="text" formControlName="currency">
             </div>
             <div class="form-group">
-              <label>Currency</label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="currency" readonly>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Timezone</label>
-            <div class="input-wrapper">
+              <label>Timezone</label>
               <select formControlName="timezone">
-                <option value="Asia/Colombo">(GMT+05:30) Colombo</option>
-                <option value="Asia/Kolkata">(GMT+05:30) India</option>
+                <option value="Asia/Colombo">Asia/Colombo (GMT+5:30)</option>
+                <option value="Asia/Kolkata">Asia/Kolkata (GMT+5:30)</option>
+                <option value="Asia/Singapore">Asia/Singapore (GMT+8:00)</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- Step 3: Modules -->
+        <!-- Step 3: Config Selection (The Logic Switch) -->
         <div class="step-content" *ngIf="currentStep() === 3">
           <div class="content-header">
-            <h3>Module Selection</h3>
-            <p>Choose the features for this tenant.</p>
+            <h3>Onboarding Choices</h3>
+            <p>Select which setup wizards you want to run for this tenant.</p>
           </div>
+          <div class="selection-cards">
+            <label class="choice-card" [class.selected]="tenantForm.get('enableEmployeeOnboarding')?.value">
+              <input type="checkbox" formControlName="enableEmployeeOnboarding">
+              <div class="card-icon"><i class="bi bi-people"></i></div>
+              <div class="card-info">
+                <span>Employee Onboarding</span>
+                <p>Bulk import employees and send invites via CSV</p>
+              </div>
+            </label>
+            <label class="choice-card" [class.selected]="tenantForm.get('enableRoleConfig')?.value">
+              <input type="checkbox" formControlName="enableRoleConfig">
+              <div class="card-icon"><i class="bi bi-shield-lock"></i></div>
+              <div class="card-info">
+                <span>Roles & Permissions</span>
+                <p>Configure granular access using industry templates</p>
+              </div>
+            </label>
+          </div>
+        </div>
 
+        <!-- Dynamic Step 10: Employee Import -->
+        <div class="step-content" *ngIf="currentStep() === 10">
+          <div class="content-header">
+            <h3>Bulk Employee Onboarding</h3>
+            <p>Upload a CSV file to pre-populate employee accounts.</p>
+          </div>
+          <div class="upload-zone">
+            <i class="bi bi-cloud-arrow-up"></i>
+            <p>Drag and drop CSV here or <span>Browse Files</span></p>
+            <small>Standard template: name, email, department, designation</small>
+          </div>
+        </div>
+
+        <!-- Dynamic Step 11: Role Config -->
+        <div class="step-content" *ngIf="currentStep() === 11">
+          <div class="content-header">
+            <h3>Access Control Templates</h3>
+            <p>Choose a base template for roles and permissions.</p>
+          </div>
+          <div class="template-grid">
+            <div class="template-item active">
+              <i class="bi bi-briefcase"></i>
+              <span>Standard IT/Software</span>
+            </div>
+            <div class="template-item">
+              <i class="bi bi-shop"></i>
+              <span>Retail & Logistics</span>
+            </div>
+            <div class="template-item">
+              <i class="bi bi-hospital"></i>
+              <span>Healthcare/Medical</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Modules & Subscription -->
+        <div class="step-content" *ngIf="currentStep() === 4" formGroupName="selectedModules">
+          <div class="content-header">
+            <h3>Packages & Billing</h3>
+            <p>Select core modules and addons for this organization.</p>
+          </div>
+          <div class="module-selection">
+            <div class="module-item disabled">
+              <input type="checkbox" [checked]="true" disabled>
+              <div class="module-label"><span>Core HR</span><p>Attendance, Profile, Documents (Included)</p></div>
+            </div>
+            <div class="module-item">
+              <input type="checkbox" formControlName="projectManagement">
+              <div class="module-label"><span>Project Management</span><p>Tasks, Kanban, Timelines</p></div>
+            </div>
+            <div class="module-item">
+              <input type="checkbox" formControlName="monitoring">
+              <div class="module-label"><span>Productivity Monitoring</span><p>App usage, Tracking</p></div>
+            </div>
+          </div>
+          <div class="plan-selector">
+            <label><input type="radio" formControlName="subscriptionPlan" value="monthly" [checked]="true"> Monthly</label>
+            <label><input type="radio" formControlName="subscriptionPlan" value="yearly"> Yearly (Save 20%)</label>
+            <label><input type="radio" formControlName="subscriptionPlan" value="trial"> Free Trial (14 Days)</label>
+          </div>
+        </div>
+
+        <!-- Step 5: Final Initial Config -->
+        <div class="step-content" *ngIf="currentStep() === 5">
+          <div class="content-header">
+            <h3>Policy Configuration</h3>
+            <p>Set default operational rules for the tenant.</p>
+          </div>
           <div class="form-group">
-            <label>Subscription Package</label>
-            <div class="input-wrapper">
-              <select formControlName="package">
-                <option value="core-hr">Core HR (Basic)</option>
-                <option value="hr-payroll">HR + Payroll (Standard)</option>
-                <option value="enterprise">Enterprise Suite (Premium)</option>
+            <label>Monitoring Transparency</label>
+            <select formControlName="monitoringMode">
+              <option value="transparent">Transparent (User knows)</option>
+              <option value="stealth">Stealth Mode</option>
+            </select>
+          </div>
+          <div class="grid-cols-2">
+            <div class="form-group">
+              <label>Leave Policy</label>
+              <select formControlName="leavePolicy">
+                <option value="standard">Standard SL (14+7+7)</option>
+                <option value="us">US Standard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Working Hours</label>
+              <select formControlName="workingHours">
+                <option value="9-5">Standard 09:00 - 17:00</option>
+                <option value="shift">Roster / Shifts</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- Step 4: Admin -->
-        <div class="step-content" *ngIf="currentStep() === 4">
+        <!-- Step 6: Admin -->
+        <div class="step-content" *ngIf="currentStep() === 6">
           <div class="content-header">
-            <h3>Primary Admin</h3>
-            <p>Create the first admin account for this tenant.</p>
+            <h3>Tenant Owner Invite</h3>
+            <p>This user will receive an invite to set their password.</p>
           </div>
-
+          <div class="form-group">
+            <label>Admin Name</label>
+            <input type="text" formControlName="adminName" placeholder="Full Name">
+          </div>
           <div class="form-group">
             <label>Admin Email</label>
-            <div class="input-wrapper">
-              <input type="email" formControlName="adminEmail" placeholder="admin@tenant.com">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Full Name</label>
-            <div class="input-wrapper">
-              <input type="text" formControlName="adminName" placeholder="John Doe">
-            </div>
+            <input type="email" formControlName="adminEmail" placeholder="admin@tenant.com">
           </div>
         </div>
 
@@ -180,14 +232,14 @@
         <button class="btn btn-ghost" (click)="prevStep()" *ngIf="currentStep() > 1">
           <i class="bi bi-arrow-left"></i> Previous
         </button>
-        <div *ngIf="currentStep() === 1"></div> <!-- Spacer -->
+        <div *ngIf="currentStep() === 1"></div>
 
-        <button class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep() < 4" [disabled]="!canMoveForward()">
+        <button class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep() < 6">
           Next Step <i class="bi bi-arrow-right"></i>
         </button>
 
-        <button class="btn btn-primary" (click)="finish()" *ngIf="currentStep() === 4" [disabled]="tenantForm.invalid">
-          Create Organization <i class="bi bi-rocket-takeoff"></i>
+        <button class="btn btn-primary" (click)="finish()" *ngIf="currentStep() === 6">
+          Provision Organization <i class="bi bi-rocket-takeoff"></i>
         </button>
       </div>
     </main>
