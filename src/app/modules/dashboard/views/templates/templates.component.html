@@ -1,0 +1,76 @@
+<div class="templates-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Configuration Templates</h1>
+      <p>Define reusable role and department structures for new tenants.</p>
+    </div>
+    <button class="btn-primary"><i class="icon-plus"></i> Create New Template</button>
+  </div>
+
+  <div class="templates-grid">
+    <!-- Template Card -->
+    <div class="template-card" *ngFor="let temp of roleTemplates()">
+      <div class="card-header">
+        <div class="icon-box">
+          <i class="icon-layers"></i>
+        </div>
+        <div class="h-info">
+          <h3>{{ temp.name }}</h3>
+          <span>Last updated {{ temp.updated }}</span>
+        </div>
+        <button class="menu-btn"><i class="icon-more-vertical"></i></button>
+      </div>
+
+      <div class="roles-preview">
+        <p class="label">Roles Hierarchy</p>
+        <div class="role-pills">
+          <span class="role-pill" *ngFor="let role of temp.roles">{{ role }}</span>
+        </div>
+      </div>
+
+      <div class="departments-preview">
+        <p class="label">Default Departments</p>
+        <p class="dep-list">{{ departments.join(', ') }}</p>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn-text">Edit Template</button>
+        <button class="btn-text outline">Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Platform Settings Preview -->
+  <section class="global-settings mt-5">
+    <div class="section-header">
+      <h3>Global Platform Settings</h3>
+      <p>Configure notifications and feature flags across the entire ecosystem.</p>
+    </div>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <i class="icon-bell"></i>
+        <div class="s-info">
+          <p class="s-title">Notification Center</p>
+          <p class="s-desc">Manage system-wide alerts and email triggers.</p>
+        </div>
+        <button class="btn-icon"><i class="icon-chevron-right"></i></button>
+      </div>
+      <div class="setting-item">
+        <i class="icon-flag"></i>
+        <div class="s-info">
+          <p class="s-title">Feature Flag Management</p>
+          <p class="s-desc">Enable or disable features for specific tiers or tenants.</p>
+        </div>
+        <button class="btn-icon"><i class="icon-chevron-right"></i></button>
+      </div>
+      <div class="setting-item">
+        <i class="icon-bar-chart"></i>
+        <div class="s-info">
+          <p class="s-title">Usage Analytics</p>
+          <p class="s-desc">Monitor global platform health and resource allocation.</p>
+        </div>
+        <button class="btn-icon"><i class="icon-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+</div>

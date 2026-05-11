@@ -1,0 +1,69 @@
+<div class="plans-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Plans & Modules</h1>
+      <p>Configure subscription tiers and global module access.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary"><i class="icon-merge"></i> Merge Modules</button>
+      <button class="btn-primary"><i class="icon-plus"></i> Create New Plan</button>
+    </div>
+  </div>
+
+  <!-- Modules Management Section -->
+  <section class="modules-section">
+    <div class="section-header">
+      <h3>Available Modules</h3>
+      <p>Manage core and add-on feature sets across the platform.</p>
+    </div>
+    <div class="modules-grid">
+      <div class="module-card" *ngFor="let mod of modules()">
+        <div class="card-top">
+          <span class="type-badge">{{ mod.type }}</span>
+          <button class="edit-btn"><i class="icon-edit-2"></i></button>
+        </div>
+        <h4>{{ mod.name }}</h4>
+        <div class="mod-stats">
+          <div class="stat">
+            <span class="s-label">Active Tenants</span>
+            <span class="s-value">{{ mod.tenants }}</span>
+          </div>
+          <div class="stat">
+            <span class="s-label">Status</span>
+            <span class="s-value" [class.beta]="mod.status === 'Beta'">{{ mod.status }}</span>
+          </div>
+        </div>
+        <div class="ai-notice" *ngIf="mod.type === 'Future/AI'">
+          <i class="icon-zap"></i> Future AI automation will affect tier pricing.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Subscription Tiers Section -->
+  <section class="tiers-section">
+    <div class="section-header">
+      <h3>Subscription Tiers</h3>
+      <p>Configure billing details and license holder prices.</p>
+    </div>
+    <div class="tiers-grid">
+      <div class="tier-card" *ngFor="let plan of plans()" [class.premium]="plan.tier === 'Premium'">
+        <div class="tier-header">
+          <h3>{{ plan.name }}</h3>
+          <span class="tier-level">{{ plan.tier }}</span>
+        </div>
+        <div class="pricing">
+          <span class="currency">Rs</span>
+          <span class="amount">{{ plan.price }}</span>
+          <span class="period">/per user/mo</span>
+        </div>
+        <ul class="tier-features">
+          <li><i class="icon-check"></i> Standard HR Modules</li>
+          <li><i class="icon-check"></i> {{ plan.price > 0 ? 'Advanced Reporting' : 'Basic Reporting' }}</li>
+          <li><i class="icon-check"></i> {{ plan.tier === 'Premium' ? 'Custom Domain + SSO' : 'Standard Auth' }}</li>
+        </ul>
+        <button class="config-btn">Configure Tier</button>
+      </div>
+    </div>
+  </section>
+</div>

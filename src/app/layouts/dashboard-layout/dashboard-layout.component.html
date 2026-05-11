@@ -1,0 +1,61 @@
+<div class="layout-wrapper" [class.collapsed]="isSidebarCollapsed()">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-box">O</div>
+        <span *ngIf="!isSidebarCollapsed()">Onevo</span>
+      </div>
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="icon-menu"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li *ngFor="let item of menuItems">
+          <a [routerLink]="item.route" routerLinkActive="active">
+            <i [class]="'icon-' + item.icon"></i>
+            <span *ngIf="!isSidebarCollapsed()">{{ item.name }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed()">
+      <div class="user-profile">
+        <div class="avatar">{{ userName().charAt(0) }}</div>
+        <div class="user-info">
+          <p class="name">{{ userName() }}</p>
+          <p class="role">Platform Owner</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2>Dashboard</h2>
+      </div>
+      <div class="topbar-right">
+        <div class="search-bar">
+          <i class="icon-search"></i>
+          <input type="text" placeholder="Search tenants...">
+        </div>
+        <button class="icon-btn">
+          <i class="icon-bell"></i>
+          <span class="badge"></span>
+        </button>
+        <button class="logout-btn" routerLink="/auth/login">
+          <i class="icon-log-out"></i>
+        </button>
+      </div>
+    </header>
+
+    <section class="content-body">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

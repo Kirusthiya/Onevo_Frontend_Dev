@@ -1,0 +1,54 @@
+<div class="tenant-page">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Tenants</h1>
+      <p>Manage all your business tenants and their subscriptions.</p>
+    </div>
+    <button class="create-btn" routerLink="/dashboard/tenants/create">
+      <i class="icon-plus"></i>
+      Create New Tenant
+    </button>
+  </div>
+
+  <div class="table-card">
+    <table class="tenant-table">
+      <thead>
+        <tr>
+          <th>Tenant Name</th>
+          <th>Owner</th>
+          <th>Domain</th>
+          <th>Plan</th>
+          <th>Users</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tenant of tenants()">
+          <td>
+            <div class="name-cell">
+              <div class="avatar-small">{{ tenant.name.charAt(0) }}</div>
+              <span>{{ tenant.name }}</span>
+            </div>
+          </td>
+          <td>{{ tenant.owner }}</td>
+          <td class="domain-text">{{ tenant.domain }}</td>
+          <td><span class="plan-badge">{{ tenant.plan }}</span></td>
+          <td>{{ tenant.users }}</td>
+          <td>
+            <span class="status-pill" [class]="getStatusClass(tenant.status)">
+              {{ tenant.status }}
+            </span>
+          </td>
+          <td>
+            <div class="action-group">
+              <button class="icon-btn" title="View Details"><i class="icon-eye"></i></button>
+              <button class="icon-btn" title="Edit Tenant"><i class="icon-edit"></i></button>
+              <button class="icon-btn delete" title="Suspend"><i class="icon-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

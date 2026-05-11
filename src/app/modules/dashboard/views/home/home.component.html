@@ -1,0 +1,57 @@
+<div class="home-container">
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-icon" [style.background-color]="stat.color + '20'" [style.color]="stat.color">
+        <i [class]="'icon-' + stat.icon"></i>
+      </div>
+      <div class="stat-info">
+        <p class="label">{{ stat.label }}</p>
+        <div class="value-row">
+          <h3 class="value">{{ stat.value }}</h3>
+          <span class="change" [class.positive]="stat.change.startsWith('+')">
+            {{ stat.change }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-sections">
+    <!-- Popular Modules Section -->
+    <div class="section-card modules-card">
+      <div class="card-header">
+        <h3>Popular Modules</h3>
+        <button class="view-all">View Analytics</button>
+      </div>
+      <div class="modules-list">
+        <div class="module-item" *ngFor="let module of popularModules">
+          <div class="module-info">
+            <span class="name">{{ module.name }}</span>
+            <span class="usage">{{ module.usage }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="module.usage + '%'" [style.background-color]="module.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="section-card activity-card">
+      <div class="card-header">
+        <h3>Recent Activity</h3>
+        <button class="view-all">Refresh</button>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-dot" [class]="activity.status"></div>
+          <div class="activity-content">
+            <p class="desc"><strong>{{ activity.user }}</strong> - {{ activity.type }}</p>
+            <span class="time">{{ activity.time }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
